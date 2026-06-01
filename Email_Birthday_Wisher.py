@@ -7,8 +7,8 @@ from datetime import datetime as dt
 
 # ---------------- PATHS ----------------
 
-path_for_letter = rf"E:\Documents_Files\RobinData\PYTHON\RawDataoftxt\BIIRTHDAY_WISHER_LETTER_{random.randint(1,3)}.txt"
-path = r"E:\Documents_Files\RobinData\PYTHON\RawDataofcsv\BIRTHDAY_DATA.csv"
+path_for_letter = "LETTER_{random.randint(1,3)}.txt"
+path = "Birthday_Data.csv"
 
 # ---------------- YOUR EMAIL LOGIN ----------------
 # KEEP PRIVATE (do NOT share)
