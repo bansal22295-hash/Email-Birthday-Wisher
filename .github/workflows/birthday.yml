@@ -1,0 +1,25 @@
+name: Email Birthday Wisher
+
+on:
+  schedule:
+    - cron: '30 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  birthday:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Requirements
+        run: pip install -r requirements.txt
+
+      - name: Run Birthday Script
+        run: python Email_Birthday_Wisher.py
