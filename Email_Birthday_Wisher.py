@@ -1,5 +1,6 @@
 # Project - Email Birthday Wisher Automation
 
+import os
 import random
 import smtplib
 import pandas
@@ -12,8 +13,8 @@ path = "Birthday_Data.csv"
 
 # ---------------- YOUR EMAIL LOGIN ----------------
 # KEEP PRIVATE (do NOT share)
-user_gmail = "ENTER Example0000@gmail.com"
-user_password = "ENTER YOU GMAIL SPECIAL PASSWORD"
+user_gmail = os.getenv("EMAL")
+user_password = os.etenv("EMAIL_PASSWORD")
 
 
 # ---------------- RANDOM SENDERS ----------------
