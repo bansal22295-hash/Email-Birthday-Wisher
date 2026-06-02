@@ -19,7 +19,7 @@ user_password = os.getenv("EMAIL_PASSWORD")
 # ---------------- RANDOM SENDERS ----------------
 
 senders = [
-    "Robin 😎",
+    "Shubham 😎",
     "Your Bro 🔥",
     "Best Friend 🚀",
     "Secret Sender 😄"
@@ -34,6 +34,8 @@ today_date = (today.month, today.day)
 
 data = pandas.read_csv(path)
 data.columns = data.columns.str.strip()
+
+print("Columns found:", data.columns.tolist())
 
 # ---------------- SMTP CONNECTION ----------------
 
