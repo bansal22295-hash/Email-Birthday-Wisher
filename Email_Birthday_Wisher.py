@@ -13,9 +13,8 @@ path = "Birthday_Data.csv"
 
 # ---------------- YOUR EMAIL LOGIN ----------------
 # KEEP PRIVATE (do NOT share)
-user_gmail = os.getenv("EMAL")
-user_password = os.etenv("EMAIL_PASSWORD")
-
+user_gmail = os.getenv("EMAIL")
+user_password = os.getenv("EMAIL_PASSWORD")
 
 # ---------------- RANDOM SENDERS ----------------
 
