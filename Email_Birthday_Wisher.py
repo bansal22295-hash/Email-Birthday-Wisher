@@ -4,7 +4,8 @@ import os
 import random
 import smtplib
 import pandas
-from datetime import datetime as dt
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # ---------------- PATHS ----------------
 
@@ -27,7 +28,7 @@ senders = [
 
 # ---------------- DATE ----------------
 
-today = dt.now()
+today = datetime.now(ZoneInfo("Asia/Kolkata"))
 today_date = (today.month, today.day)
 print("Today Date:", today_date)
 
