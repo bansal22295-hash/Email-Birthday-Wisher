@@ -29,6 +29,7 @@ senders = [
 
 today = dt.now()
 today_date = (today.month, today.day)
+print("Today Date:", today_date)
 
 # ---------------- READ CSV ----------------
 
