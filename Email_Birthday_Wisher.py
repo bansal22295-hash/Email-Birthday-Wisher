@@ -8,7 +8,7 @@ from datetime import datetime as dt
 
 # ---------------- PATHS ----------------
 
-path_for_letter = "LETTER_{random.randint(1,3)}.txt"
+path_for_letter = f"LETTER_{random.randint(1,3)}.txt"
 path = "Birthday_Data.csv"
 
 # ---------------- YOUR EMAIL LOGIN ----------------
