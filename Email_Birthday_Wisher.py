@@ -7,13 +7,19 @@ import pandas
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-# ---------------- PATHS ----------------
+# ---------------- LETTER FILES ----------------
 
-path_for_letter = f"LETTER_{random.randint(1,3)}.txt"
+letters = [
+    "LETTER_1.txt",
+    "LETTER_2.txt",
+    "LETTER_3.txt"
+]
+
+path_for_letter = random.choice(letters)
 path = "Birthday_Data.csv"
 
-# ---------------- YOUR EMAIL LOGIN ----------------
-# KEEP PRIVATE (do NOT share)
+# ---------------- EMAIL LOGIN ----------------
+
 user_gmail = os.getenv("EMAIL")
 user_password = os.getenv("EMAIL_PASSWORD")
 
@@ -26,10 +32,11 @@ senders = [
     "Secret Sender 😄"
 ]
 
-# ---------------- DATE ----------------
+# ---------------- INDIA DATE ----------------
 
 today = datetime.now(ZoneInfo("Asia/Kolkata"))
 today_date = (today.month, today.day)
+
 print("Today Date:", today_date)
 
 # ---------------- READ CSV ----------------
@@ -38,6 +45,7 @@ data = pandas.read_csv(path)
 data.columns = data.columns.str.strip()
 
 print("Columns found:", data.columns.tolist())
+print("Selected Letter:", path_for_letter)
 
 # ---------------- SMTP CONNECTION ----------------
 
@@ -49,38 +57,66 @@ count = 0
 
 # ---------------- MAIN LOOP ----------------
 
-for (index, BirthDay_Boy) in data.iterrows():
+for index, BirthDay_Boy in data.iterrows():
 
-    if (BirthDay_Boy["Month"], BirthDay_Boy["Day"]) == today_date:
+    print(
+        "Checking:",
+        BirthDay_Boy["Name"],
+        (BirthDay_Boy["Month"], BirthDay_Boy["Day"])
+    )
 
-        # read random letter
-        with open(path_for_letter, "r", encoding="utf-8", errors="ignore") as file:
+    if (
+        int(BirthDay_Boy["Month"]),
+        int(BirthDay_Boy["Day"])
+    ) == today_date:
+
+        print("Birthday Match Found!")
+
+        with open(path_for_letter, "r", encoding="utf-8") as file:
+
             letter = file.read()
-            letter = letter.replace("[NAME]", BirthDay_Boy["Name"])
-            letter = letter.replace("[SENDER]", random.choice(senders))
+
+            letter = letter.replace(
+                "[NAME]",
+                BirthDay_Boy["Name"]
+            )
+
+            letter = letter.replace(
+                "[SENDER]",
+                random.choice(senders)
+            )
 
             clean_lines = []
-            for Content in letter.splitlines():
-                if Content.strip().startswith("#"):
+
+            for content in letter.splitlines():
+
+                if content.strip().startswith("#"):
                     continue
-                clean_lines.append(Content)
+
+                clean_lines.append(content)
 
             final_letter = "\n".join(clean_lines)
 
-            message = f"Subject:Happy Birthday!\n\n{final_letter}"
+            message = f"""Subject: Happy Birthday!
+
+{final_letter}
+"""
+
+            print("Sender:", user_gmail)
+            print("Receiver:", BirthDay_Boy["Gmail"])
 
             connection.sendmail(
                 from_addr=user_gmail,
                 to_addrs=BirthDay_Boy["Gmail"],
-                msg=message.encode("utf-8")
+                msg=message
             )
 
+            print("Sent to:", BirthDay_Boy["Name"])
 
-        count += 1
-        print("Sent to:", BirthDay_Boy["Name"])
+            count += 1
 
 # ---------------- CLOSE ----------------
 
-connection.close()
+connection.quit()
 
 print(f"\nTotal Emails Sent: {count}")
