@@ -1,30 +1,45 @@
-# Project - Email Birthday Wisher Automation
+# ==========================================================
+# Email Birthday Wisher Automation (GitHub Actions Version)
+# ==========================================================
 
 import os
 import random
 import smtplib
 import pandas
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-# ---------------- LETTER FILES ----------------
+from email.mime.text import MIMEText
+
+# ==========================================================
+# LETTER FILES
+# ==========================================================
 
 letters = [
     "LETTER_1.txt",
     "LETTER_2.txt",
-    "LETTER_3.txt",
-    "LETTER_4.txt"
+    "LETTER_3.txt"
 ]
 
 path_for_letter = random.choice(letters)
-path = "Birthday_Data.csv"
 
-# ---------------- EMAIL LOGIN ----------------
+# ==========================================================
+# CSV FILE
+# ==========================================================
+
+csv_file = "Birthday_Data.csv"
+
+# ==========================================================
+# GITHUB SECRETS
+# ==========================================================
 
 user_gmail = os.getenv("EMAIL")
 user_password = os.getenv("EMAIL_PASSWORD")
 
-# ---------------- RANDOM SENDERS ----------------
+# ==========================================================
+# RANDOM SENDER NAMES
+# ==========================================================
 
 senders = [
     "Shubham 😎",
@@ -33,53 +48,193 @@ senders = [
     "Secret Sender 😄"
 ]
 
-# ---------------- INDIA DATE ----------------
+# ==========================================================
+# INDIA TIMEZONE
+# ==========================================================
 
-today = datetime.now(ZoneInfo("Asia/Kolkata"))
-today_date = (today.month, today.day)
+today = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+)
 
-print("Today Date:", today_date)
+today_date = (
+    today.month,
+    today.day
+)
 
-# ---------------- READ CSV ----------------
+print("=" * 50)
+print("EMAIL BIRTHDAY WISHER STARTED")
+print("=" * 50)
 
-data = pandas.read_csv(path)
-data.columns = data.columns.str.strip()
+print(f"Today Date : {today_date}")
+print(f"Selected Letter : {path_for_letter}")
 
-print("Columns found:", data.columns.tolist())
-print("Selected Letter:", path_for_letter)
+# ==========================================================
+# VALIDATE SECRETS
+# ==========================================================
 
-# ---------------- SMTP CONNECTION ----------------
+if not user_gmail:
+    raise ValueError(
+        "EMAIL secret not found in GitHub Actions."
+    )
 
-connection = smtplib.SMTP("smtp.gmail.com", 587)
-connection.starttls()
-connection.login(user=user_gmail, password=user_password)
+if not user_password:
+    raise ValueError(
+        "EMAIL_PASSWORD secret not found in GitHub Actions."
+    )
+
+print("EMAIL Secret Found ✅")
+print("PASSWORD Secret Found ✅")
+
+# ==========================================================
+# LOAD CSV
+# ==========================================================
+
+try:
+
+    data = pandas.read_csv(csv_file)
+
+    data.columns = (
+        data.columns
+        .str.strip()
+    )
+
+    print(
+        "Columns Found:",
+        data.columns.tolist()
+    )
+
+except FileNotFoundError:
+
+    print(
+        f"ERROR: '{csv_file}' not found."
+    )
+
+    raise
+
+except Exception as error:
+
+    print(
+        "CSV Loading Error:",
+        error
+    )
+
+    raise
+
+# ==========================================================
+# CONNECT TO GMAIL
+# ==========================================================
+
+try:
+
+    print(
+        "\nConnecting to Gmail..."
+    )
+
+    connection = smtplib.SMTP(
+        "smtp.gmail.com",
+        587
+    )
+
+    connection.starttls()
+
+    connection.login(
+        user=user_gmail,
+        password=user_password
+    )
+
+    print(
+        "Gmail Login Successful ✅"
+    )
+
+except Exception as error:
+
+    print(
+        "Gmail Login Failed ❌"
+    )
+
+    print(error)
+
+    raise
+
+# ==========================================================
+# SEND EMAILS
+# ==========================================================
 
 count = 0
 
-# ---------------- MAIN LOOP ----------------
+for index, birthday_person in data.iterrows():
 
-for index, BirthDay_Boy in data.iterrows():
+    try:
 
-    print(
-        "Checking:",
-        BirthDay_Boy["Name"],
-        (BirthDay_Boy["Month"], BirthDay_Boy["Day"])
-    )
+        person_name = (
+            birthday_person["Name"]
+        )
 
-    if (
-        int(BirthDay_Boy["Month"]),
-        int(BirthDay_Boy["Day"])
-    ) == today_date:
+        person_email = (
+            birthday_person["Gmail"]
+        )
 
-        print("Birthday Match Found!")
+        person_month = int(
+            birthday_person["Month"]
+        )
 
-        with open(path_for_letter, "r", encoding="utf-8") as file:
+        person_day = int(
+            birthday_person["Day"]
+        )
 
-            letter = file.read()
+        birthday_date = (
+            person_month,
+            person_day
+        )
+
+        print(
+            f"\nChecking {person_name}"
+        )
+
+        print(
+            f"CSV Date : {birthday_date}"
+        )
+
+        # --------------------------------------------------
+        # Birthday Match
+        # --------------------------------------------------
+
+        if birthday_date == today_date:
+
+            print(
+                "Birthday Match Found 🎉"
+            )
+
+            # ----------------------------------------------
+            # Read Letter
+            # ----------------------------------------------
+
+            try:
+
+                with open(
+                    path_for_letter,
+                    "r",
+                    encoding="utf-8"
+                ) as file:
+
+                    letter = file.read()
+
+            except FileNotFoundError:
+
+                print(
+                    f"Letter File Missing: "
+                    f"{path_for_letter}"
+                )
+
+                continue
+
+            # ----------------------------------------------
+            # Replace Placeholders
+            # ----------------------------------------------
 
             letter = letter.replace(
                 "[NAME]",
-                BirthDay_Boy["Name"]
+                person_name
             )
 
             letter = letter.replace(
@@ -87,37 +242,125 @@ for index, BirthDay_Boy in data.iterrows():
                 random.choice(senders)
             )
 
+            # ----------------------------------------------
+            # Remove Comment Lines
+            # ----------------------------------------------
+
             clean_lines = []
 
-            for content in letter.splitlines():
+            for line in (
+                letter.splitlines()
+            ):
 
-                if content.strip().startswith("#"):
+                if (
+                    line.strip()
+                    .startswith("#")
+                ):
                     continue
 
-                clean_lines.append(content)
+                clean_lines.append(
+                    line
+                )
 
-            final_letter = "\n".join(clean_lines)
+            final_letter = (
+                "\n".join(clean_lines)
+            )
 
-            message = f"""Subject: Happy Birthday!
+            # ----------------------------------------------
+            # MIME Email
+            # ----------------------------------------------
 
-{final_letter}
-"""
+            message = MIMEText(
+                final_letter,
+                "plain",
+                "utf-8"
+            )
 
-            print("Sender:", user_gmail)
-            print("Receiver:", BirthDay_Boy["Gmail"])
+            message[
+                "Subject"
+            ] = "Happy Birthday! 🎂"
+
+            message[
+                "From"
+            ] = user_gmail
+
+            message[
+                "To"
+            ] = person_email
+
+            print(
+                f"Sender   : {user_gmail}"
+            )
+
+            print(
+                f"Receiver : {person_email}"
+            )
+
+            # ----------------------------------------------
+            # Send Email
+            # ----------------------------------------------
 
             connection.sendmail(
                 from_addr=user_gmail,
-                to_addrs=BirthDay_Boy["Gmail"],
-                msg=message
+                to_addrs=person_email,
+                msg=message.as_string()
             )
-
-            print("Sent to:", BirthDay_Boy["Name"])
 
             count += 1
 
-# ---------------- CLOSE ----------------
+            print(
+                f"Email Sent To "
+                f"{person_name} ✅"
+            )
 
-connection.quit()
+        else:
 
-print(f"\nTotal Emails Sent: {count}")
+            print(
+                "No Birthday Today"
+            )
+
+    except KeyError as error:
+
+        print(
+            f"Missing CSV Column: "
+            f"{error}"
+        )
+
+    except Exception as error:
+
+        print(
+            f"Error Processing Row: "
+            f"{error}"
+        )
+
+# ==========================================================
+# CLOSE CONNECTION
+# ==========================================================
+
+try:
+
+    connection.quit()
+
+    print(
+        "\nSMTP Connection Closed ✅"
+    )
+
+except Exception as error:
+
+    print(
+        "Error Closing SMTP:"
+    )
+
+    print(error)
+
+# ==========================================================
+# FINAL REPORT
+# ==========================================================
+
+print("\n" + "=" * 50)
+
+print(
+    f"Total Emails Sent: {count}"
+)
+
+print("=" * 50)
