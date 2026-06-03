@@ -19,7 +19,8 @@ from email.mime.text import MIMEText
 letters = [
     "LETTER_1.txt",
     "LETTER_2.txt",
-    "LETTER_3.txt"
+    "LETTER_3.txt",
+    "LETTER_4.txt"
 ]
 
 path_for_letter = random.choice(letters)
