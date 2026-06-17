@@ -20,7 +20,8 @@ letters = [
     "LETTER_1.txt",
     "LETTER_2.txt",
     "LETTER_3.txt",
-    "LETTER_4.txt"
+    "LETTER_4.txt",
+    "LETTER_5.txt",
 ]
 
 path_for_letter = random.choice(letters)
